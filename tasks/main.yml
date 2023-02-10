@@ -7,6 +7,11 @@
       - domain_name is defined
       - cloudwatch_region is defined
       - cloudwatch_log_group is defined
+      - db_hostname is defined
+      - db_username is defined
+      - db_password is defined
+      - db_database_name is defined
+      - redis_hostname is defined
 
 - name: Create the dockernetwork
   docker_network:
@@ -25,6 +30,9 @@
   docker_container:
     name: "{{ application_name }}-server"
     image: "altran1502/immich-server:release"
+    entrypoint: 
+      - "/bin/sh"
+      - "./start-server.sh"
     cleanup: true
     log_driver: "awslogs"
     log_options:
@@ -33,7 +41,7 @@
       awslogs-stream: "{{ application_name }}-server"
     restart_policy: "always"
     exposed_ports:
-      - "80"
+      - "3001"
     networks:
       - name: "{{ docker_network_name }}"
     volumes:
@@ -45,6 +53,9 @@
   docker_container:
     name: "{{ application_name }}-microservices"
     image: "altran1502/immich-server:release"
+    entrypoint: 
+      - "/bin/sh"
+      - "./start-microservices.sh"
     cleanup: true
     log_driver: "awslogs"
     log_options:
@@ -53,19 +64,21 @@
       awslogs-stream: "{{ application_name }}-microservices"
     restart_policy: "always"
     exposed_ports:
-      - "80"
+      - "3001"
     networks:
       - name: "{{ docker_network_name }}"
     volumes:
       - "{{ hostvars[inventory_hostname].working_directory }}{{ application_name }}/upload:/usr/src/app/upload"
     env:
       NODE_ENV: "production"
-      #TODO: Missing env values here
 
 - name: Create machine learning container
   docker_container:
     name: "{{ application_name }}-machine-learning"
     image: "altran1502/immich-machine-learning:release"
+    entrypoint: 
+      - "/bin/sh"
+      - "./entrypoint.sh"
     cleanup: true
     log_driver: "awslogs"
     log_options:
@@ -74,14 +87,13 @@
       awslogs-stream: "{{ application_name }}-marchine-learning"
     restart_policy: "always"
     exposed_ports:
-      - "80"
+      - "3003"
     networks:
       - name: "{{ docker_network_name }}"
     volumes:
       - "{{ hostvars[inventory_hostname].working_directory }}{{ application_name }}/upload:/usr/src/app/upload"
     env:
       NODE_ENV: "production"
-      #TODO: Missing env values here
 
 - name: Create web container
   docker_container:
@@ -95,11 +107,10 @@
       awslogs-stream: "{{ application_name }}-marchine-learning"
     restart_policy: "always"
     exposed_ports:
-      - "80"
+      - "3000"
     networks:
       - name: "{{ docker_network_name }}"
-    env:
-      #TODO: Missing env values here
+
 - name: Create proxy container
   docker_container:
     name: "{{ application_name }}-proxy"
@@ -109,12 +120,12 @@
     log_options:
       awslogs-region: "{{ cloudwatch_region }}"
       awslogs-group: "{{ cloudwatch_log_group }}"
-      awslogs-stream: "{{ application_name }}-marchine-learning"
+      awslogs-stream: "{{ application_name }}-proxy"
     restart_policy: "always"
     exposed_ports:
       - "2283"
     networks:
       - name: "{{ docker_network_name }}"
     env:
-      IMMICH_SERVER_URL: "server_url"
-      IMMICH_WEB_URL: "server_url"
+      IMMICH_SERVER_URL: "http://{{application_name}}-server:3001"
+      IMMICH_WEB_URL: "http://{{application_name}}-web:3000"
