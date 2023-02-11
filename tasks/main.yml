@@ -116,7 +116,7 @@
     log_options:
       awslogs-region: "{{ cloudwatch_region }}"
       awslogs-group: "{{ cloudwatch_log_group }}"
-      awslogs-stream: "{{ application_name }}-marchine-learning"
+      awslogs-stream: "{{ application_name }}-web"
     restart_policy: "always"
     exposed_ports:
       - "3000"
