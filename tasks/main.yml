@@ -48,6 +48,10 @@
       - "{{ hostvars[inventory_hostname].working_directory }}{{ application_name }}/upload:/usr/src/app/upload"
     env:
       NODE_ENV: "production"
+      DB_HOSTNAME: "{{ db_hostname }}"
+      DB_USERNAME: "{{ db_username }}"
+      DB_PASSWORD: "{{ db_password }}"
+      DB_DATABASE_NAME: "{{ db_database_name }}"
 
 - name: Create microservices container
   docker_container:
@@ -71,6 +75,10 @@
       - "{{ hostvars[inventory_hostname].working_directory }}{{ application_name }}/upload:/usr/src/app/upload"
     env:
       NODE_ENV: "production"
+      DB_HOSTNAME: "{{ db_hostname }}"
+      DB_USERNAME: "{{ db_username }}"
+      DB_PASSWORD: "{{ db_password }}"
+      DB_DATABASE_NAME: "{{ db_database_name }}"
 
 - name: Create machine learning container
   docker_container:
