@@ -140,7 +140,7 @@
       awslogs-stream: "{{ application_name }}-proxy"
     restart_policy: "always"
     exposed_ports:
-      - "2283"
+      - "8080"
     networks:
       - name: "{{ docker_network_name }}"
     env:
@@ -148,4 +148,4 @@
       IMMICH_WEB_URL: "http://{{application_name}}-web:3000"
       VIRTUAL_HOST: "{{ domain_name }}"
       LETSENCRYPT_HOST: "{{ domain_name }}"
-      VIRTUAL_PORT: "2283"
+      VIRTUAL_PORT: "8080"
