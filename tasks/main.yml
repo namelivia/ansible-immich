@@ -115,6 +115,9 @@
     image: "altran1502/immich-web:release"
     cleanup: true
     log_driver: "awslogs"
+    entrypoint: 
+      - "/bin/sh"
+      - "./entrypoint.sh"
     log_options:
       awslogs-region: "{{ cloudwatch_region }}"
       awslogs-group: "{{ cloudwatch_log_group }}"
