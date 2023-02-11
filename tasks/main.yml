@@ -146,3 +146,6 @@
     env:
       IMMICH_SERVER_URL: "http://{{application_name}}-server:3001"
       IMMICH_WEB_URL: "http://{{application_name}}-web:3000"
+      VIRTUAL_HOST: "{{ domain_name }}"
+      LETSENCRYPT_HOST: "{{ domain_name }}"
+      VIRTUAL_PORT: "2283"
