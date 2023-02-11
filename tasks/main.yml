@@ -7,10 +7,10 @@
       - domain_name is defined
       - cloudwatch_region is defined
       - cloudwatch_log_group is defined
-      - db_hostname is defined
-      - db_username is defined
-      - db_password is defined
-      - db_database_name is defined
+      - database_container_name is defined
+      - database_user is defined
+      - database_password is defined
+      - database_name is defined
       - redis_hostname is defined
 
 - name: Create the dockernetwork
@@ -24,7 +24,11 @@
     mode: 0700
 
 # Redis container missing
-# Database container missing
+- name: Create database
+  include_role:
+    name: ansible-postgres
+    tasks_from: create-postgres-database-if-not-exists
+
 
 - name: Create server container
   docker_container:
@@ -48,10 +52,10 @@
       - "{{ hostvars[inventory_hostname].working_directory }}{{ application_name }}/upload:/usr/src/app/upload"
     env:
       NODE_ENV: "production"
-      DB_HOSTNAME: "{{ db_hostname }}"
-      DB_USERNAME: "{{ db_username }}"
-      DB_PASSWORD: "{{ db_password }}"
-      DB_DATABASE_NAME: "{{ db_database_name }}"
+      DB_HOSTNAME: "{{ database_container_name }}"
+      DB_USERNAME: "{{ database_user }}"
+      DB_PASSWORD: "{{ database_password }}"
+      DB_DATABASE_NAME: "{{ database_name }}"
 
 - name: Create microservices container
   docker_container:
@@ -75,10 +79,10 @@
       - "{{ hostvars[inventory_hostname].working_directory }}{{ application_name }}/upload:/usr/src/app/upload"
     env:
       NODE_ENV: "production"
-      DB_HOSTNAME: "{{ db_hostname }}"
-      DB_USERNAME: "{{ db_username }}"
-      DB_PASSWORD: "{{ db_password }}"
-      DB_DATABASE_NAME: "{{ db_database_name }}"
+      DB_HOSTNAME: "{{ database_container_name }}"
+      DB_USERNAME: "{{ database_user}}"
+      DB_PASSWORD: "{{ database_password }}"
+      DB_DATABASE_NAME: "{{ database_name }}"
 
 - name: Create machine learning container
   docker_container:
