@@ -56,6 +56,7 @@
       DB_USERNAME: "{{ database_user }}"
       DB_PASSWORD: "{{ database_password }}"
       DB_DATABASE_NAME: "{{ database_name }}"
+      REDIS_HOSTNAME: "{{ redis_hostname }}"
 
 - name: Create microservices container
   docker_container:
@@ -83,6 +84,7 @@
       DB_USERNAME: "{{ database_user}}"
       DB_PASSWORD: "{{ database_password }}"
       DB_DATABASE_NAME: "{{ database_name }}"
+      REDIS_HOSTNAME: "{{ redis_hostname }}"
 
 - name: Create machine learning container
   docker_container:
