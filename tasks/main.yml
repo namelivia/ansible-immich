@@ -5,8 +5,7 @@
       - application_name is defined
       - docker_network_name is defined
       - domain_name is defined
-      - cloudwatch_region is defined
-      - cloudwatch_log_group is defined
+      - loki_url is defined
       - database_container_name is defined
       - database_user is defined
       - database_password is defined
@@ -39,11 +38,10 @@
       - "/bin/sh"
       - "./start-server.sh"
     cleanup: true
-    log_driver: "awslogs"
+    log_driver: "loki"
     log_options:
-      awslogs-region: "{{ cloudwatch_region }}"
-      awslogs-group: "{{ cloudwatch_log_group }}"
-      awslogs-stream: "{{ application_name }}-server"
+      loki-url: "{{ loki_url }}"
+      loki-batch-size: "400"
     restart_policy: "always"
     exposed_ports:
       - "3001"
@@ -68,11 +66,10 @@
       - "/bin/sh"
       - "./start-microservices.sh"
     cleanup: true
-    log_driver: "awslogs"
+    log_driver: "loki"
     log_options:
-      awslogs-region: "{{ cloudwatch_region }}"
-      awslogs-group: "{{ cloudwatch_log_group }}"
-      awslogs-stream: "{{ application_name }}-microservices"
+      loki-url: "{{ loki_url }}"
+      loki-batch-size: "400"
     restart_policy: "always"
     exposed_ports:
       - "3001"
@@ -97,11 +94,10 @@
       - "/bin/sh"
       - "./entrypoint.sh"
     cleanup: true
-    log_driver: "awslogs"
+    log_driver: "loki"
     log_options:
-      awslogs-region: "{{ cloudwatch_region }}"
-      awslogs-group: "{{ cloudwatch_log_group }}"
-      awslogs-stream: "{{ application_name }}-marchine-learning"
+      loki-url: "{{ loki_url }}"
+      loki-batch-size: "400"
     restart_policy: "always"
     exposed_ports:
       - "3003"
@@ -118,14 +114,13 @@
     image: "altran1502/immich-web:release"
     pull: true
     cleanup: true
-    log_driver: "awslogs"
     entrypoint: 
       - "/bin/sh"
       - "./entrypoint.sh"
+    log_driver: "loki"
     log_options:
-      awslogs-region: "{{ cloudwatch_region }}"
-      awslogs-group: "{{ cloudwatch_log_group }}"
-      awslogs-stream: "{{ application_name }}-web"
+      loki-url: "{{ loki_url }}"
+      loki-batch-size: "400"
     restart_policy: "always"
     exposed_ports:
       - "3000"
@@ -138,11 +133,10 @@
     image: "altran1502/immich-proxy:release"
     pull: true
     cleanup: true
-    log_driver: "awslogs"
+    log_driver: "loki"
     log_options:
-      awslogs-region: "{{ cloudwatch_region }}"
-      awslogs-group: "{{ cloudwatch_log_group }}"
-      awslogs-stream: "{{ application_name }}-proxy"
+      loki-url: "{{ loki_url }}"
+      loki-batch-size: "400"
     restart_policy: "always"
     exposed_ports:
       - "8080"
