@@ -20,7 +20,7 @@
   file:
     path: "{{ hostvars[inventory_hostname].working_directory }}{{ application_name }}/upload"
     state: directory
-    mode: 0700
+    mode: "0700"
 
 # Redis container missing
 - name: Create database
@@ -34,7 +34,7 @@
     name: "{{ application_name }}-server"
     image: "altran1502/immich-server:release"
     pull: true
-    entrypoint: 
+    entrypoint:
       - "/bin/sh"
       - "./start-server.sh"
     cleanup: true
@@ -62,7 +62,7 @@
     name: "{{ application_name }}-microservices"
     image: "altran1502/immich-server:release"
     pull: true
-    entrypoint: 
+    entrypoint:
       - "/bin/sh"
       - "./start-microservices.sh"
     cleanup: true
@@ -80,7 +80,7 @@
     env:
       NODE_ENV: "production"
       DB_HOSTNAME: "{{ database_container_name }}"
-      DB_USERNAME: "{{ database_user}}"
+      DB_USERNAME: "{{ database_user }}"
       DB_PASSWORD: "{{ database_password }}"
       DB_DATABASE_NAME: "{{ database_name }}"
       REDIS_HOSTNAME: "{{ redis_hostname }}"
@@ -90,7 +90,7 @@
     name: "{{ application_name }}-machine-learning"
     image: "altran1502/immich-machine-learning:release"
     pull: true
-    entrypoint: 
+    entrypoint:
       - "/bin/sh"
       - "./entrypoint.sh"
     cleanup: true
@@ -114,7 +114,7 @@
     image: "altran1502/immich-web:release"
     pull: true
     cleanup: true
-    entrypoint: 
+    entrypoint:
       - "/bin/sh"
       - "./entrypoint.sh"
     log_driver: "loki"
@@ -145,5 +145,5 @@
     networks:
       - name: "{{ docker_network_name }}"
     env:
-      IMMICH_SERVER_URL: "http://{{application_name}}-server:3001"
-      IMMICH_WEB_URL: "http://{{application_name}}-web:3000"
+      IMMICH_SERVER_URL: "http://{{ application_name }}-server:3001"
+      IMMICH_WEB_URL: "http://{{ application_name }}-web:3000"
