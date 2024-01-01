@@ -10,6 +10,7 @@
       - database_password is defined
       - database_name is defined
       - redis_hostname is defined
+      - immich_external_path is defined
 
 - name: Create the dockernetwork
   docker_network:
@@ -69,6 +70,7 @@
       - name: "{{ docker_network_name }}"
     volumes:
       - "{{ hostvars[inventory_hostname].working_directory }}{{ application_name }}/upload:/usr/src/app/upload"
+      - "{{ immich_external_path }}:/mnt/media:ro"
       - /etc/localtime:/etc/localtime:ro
     env:
       NODE_ENV: "production"
@@ -94,6 +96,7 @@
       - name: "{{ docker_network_name }}"
     volumes:
       - "{{ hostvars[inventory_hostname].working_directory }}{{ application_name }}/upload:/usr/src/app/upload"
+      - "{{ immich_external_path }}:/mnt/media:ro"
       - /etc/localtime:/etc/localtime:ro
     env:
       NODE_ENV: "production"
