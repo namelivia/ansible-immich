@@ -6,7 +6,6 @@
       - docker_network_name is defined
       - host_port is defined
       - loki_url is defined
-      - database_container_name is defined
       - database_user is defined
       - database_password is defined
       - database_name is defined
@@ -16,18 +15,41 @@
   docker_network:
     name: "{{ docker_network_name }}"
 
-- name: Create the config directory
+- name: Create the immich-postgres data volumne
+  docker_volume:
+    name: immich-postgres-data
+
+- name: Create the model-cache volumne
+  docker_volume:
+    name: model-cache
+
+- name: Create the upload directory
   file:
     path: "{{ hostvars[inventory_hostname].working_directory }}{{ application_name }}/upload"
     state: directory
     mode: "0700"
 
-# Redis container missing
-- name: Create database
-  include_role:
-    name: ansible-postgres
-    tasks_from: create-postgres-database-if-not-exists
-
+# TODO: Redis container missing
+- name: Create database container
+  docker_container:
+    name: "{{ application_name }}-database"
+    image: "tensorchord/pgvecto-rs:pg14-v0.1.11@sha256:0335a1a22f8c5dd1b697f14f079934f5152eaaa216c09b61e293be285491f8ee"
+    restart_policy: "always"
+    cleanup: true
+    exposed_ports:
+      - "5432"
+    networks:
+      - name: "{{ network_name }}"
+    log_driver: "loki"
+    log_options:
+      loki-url: "{{ loki_url }}"
+      loki-batch-size: "400"
+    volumes:
+      - immich-postgres-data:/var/lib/postgresql/data
+    env:
+      POSTGRES_USER: "{{ database_user }}"
+      POSTGRES_PASSWORD: "{{ database_password }}"
+      POSTGRES_DB: "{{ database_name }}"
 
 - name: Create server container
   docker_container:
@@ -52,7 +74,7 @@
       - /etc/localtime:/etc/localtime:ro
     env:
       NODE_ENV: "production"
-      DB_HOSTNAME: "{{ database_container_name }}"
+      DB_HOSTNAME: "{{ application_name }}-database"
       DB_USERNAME: "{{ database_user }}"
       DB_PASSWORD: "{{ database_password }}"
       DB_DATABASE_NAME: "{{ database_name }}"
@@ -77,7 +99,7 @@
       - /etc/localtime:/etc/localtime:ro
     env:
       NODE_ENV: "production"
-      DB_HOSTNAME: "{{ database_container_name }}"
+      DB_HOSTNAME: "{{ application_name }}-database"
       DB_USERNAME: "{{ database_user }}"
       DB_PASSWORD: "{{ database_password }}"
       DB_DATABASE_NAME: "{{ database_name }}"
