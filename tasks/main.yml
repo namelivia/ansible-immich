@@ -25,12 +25,6 @@
   docker_volume:
     name: model-cache
 
-- name: Create the upload directory
-  file:
-    path: "{{ hostvars[inventory_hostname].working_directory }}{{ application_name }}/upload"
-    state: directory
-    mode: "0700"
-
 # TODO: Redis container missing
 - name: Create database container
   docker_container:
