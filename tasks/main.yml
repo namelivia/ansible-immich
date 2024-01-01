@@ -63,10 +63,8 @@
       loki-url: "{{ loki_url }}"
       loki-batch-size: "400"
     restart_policy: "always"
-    exposed_ports:
-      - 2283
     published_ports:
-      - "0.0.0.0:{{ host_port }}:2283"
+      - "0.0.0.0:{{ host_port }}:3001"
     networks:
       - name: "{{ docker_network_name }}"
     volumes:
