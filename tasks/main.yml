@@ -32,11 +32,11 @@
 - name: Create server container
   docker_container:
     name: "{{ application_name }}-server"
-    image: "altran1502/immich-server:release"
+    image: "ghcr.io/immich-app/immich-server:3.8"
     pull: true
     entrypoint:
-      - "/bin/sh"
-      - "./start-server.sh"
+      - "start.sh"
+      - "immich"
     cleanup: true
     log_driver: "loki"
     log_options:
@@ -44,11 +44,14 @@
       loki-batch-size: "400"
     restart_policy: "always"
     exposed_ports:
-      - "3001"
+      - 2283
+    published_ports:
+      - "0.0.0.0:{{ host_port }}:2283"
     networks:
       - name: "{{ docker_network_name }}"
     volumes:
       - "{{ hostvars[inventory_hostname].working_directory }}{{ application_name }}/upload:/usr/src/app/upload"
+      - /etc/localtime:/etc/localtime:ro
     env:
       NODE_ENV: "production"
       DB_HOSTNAME: "{{ database_container_name }}"
@@ -60,23 +63,22 @@
 - name: Create microservices container
   docker_container:
     name: "{{ application_name }}-microservices"
-    image: "altran1502/immich-server:release"
+    image: "ghcr.io/immich-app/immich-server:3.8"
     pull: true
     entrypoint:
-      - "/bin/sh"
-      - "./start-microservices.sh"
+      - "start.sh"
+      - "microservices"
     cleanup: true
     log_driver: "loki"
     log_options:
       loki-url: "{{ loki_url }}"
       loki-batch-size: "400"
     restart_policy: "always"
-    exposed_ports:
-      - "3001"
     networks:
       - name: "{{ docker_network_name }}"
     volumes:
       - "{{ hostvars[inventory_hostname].working_directory }}{{ application_name }}/upload:/usr/src/app/upload"
+      - /etc/localtime:/etc/localtime:ro
     env:
       NODE_ENV: "production"
       DB_HOSTNAME: "{{ database_container_name }}"
@@ -88,62 +90,17 @@
 - name: Create machine learning container
   docker_container:
     name: "{{ application_name }}-machine-learning"
-    image: "altran1502/immich-machine-learning:release"
+    image: "ghcr.io/immich-app/immich-machine-learning:3.8"
     pull: true
-    entrypoint:
-      - "/bin/sh"
-      - "./entrypoint.sh"
     cleanup: true
     log_driver: "loki"
     log_options:
       loki-url: "{{ loki_url }}"
       loki-batch-size: "400"
     restart_policy: "always"
-    exposed_ports:
-      - "3003"
     networks:
       - name: "{{ docker_network_name }}"
     volumes:
-      - "{{ hostvars[inventory_hostname].working_directory }}{{ application_name }}/upload:/usr/src/app/upload"
+      - model-cache:/cache
     env:
       NODE_ENV: "production"
-
-- name: Create web container
-  docker_container:
-    name: "{{ application_name }}-web"
-    image: "altran1502/immich-web:release"
-    pull: true
-    cleanup: true
-    entrypoint:
-      - "/bin/sh"
-      - "./entrypoint.sh"
-    log_driver: "loki"
-    log_options:
-      loki-url: "{{ loki_url }}"
-      loki-batch-size: "400"
-    restart_policy: "always"
-    exposed_ports:
-      - "3000"
-    networks:
-      - name: "{{ docker_network_name }}"
-
-- name: Create proxy container
-  docker_container:
-    name: "{{ application_name }}-proxy"
-    image: "altran1502/immich-proxy:release"
-    pull: true
-    cleanup: true
-    log_driver: "loki"
-    log_options:
-      loki-url: "{{ loki_url }}"
-      loki-batch-size: "400"
-    restart_policy: "always"
-    exposed_ports:
-      - "8080"
-    published_ports:
-      - "0.0.0.0:{{ host_port }}:8080"
-    networks:
-      - name: "{{ docker_network_name }}"
-    env:
-      IMMICH_SERVER_URL: "http://{{ application_name }}-server:3001"
-      IMMICH_WEB_URL: "http://{{ application_name }}-web:3000"
