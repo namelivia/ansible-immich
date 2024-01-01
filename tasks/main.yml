@@ -64,7 +64,7 @@
     networks:
       - name: "{{ docker_network_name }}"
     volumes:
-      - "{{ immich_upload_path }}/upload:/usr/src/app/upload"
+      - "{{ immich_upload_path }}:/usr/src/app/upload"
       - "{{ immich_external_path }}:/mnt/media:ro"
       - /etc/localtime:/etc/localtime:ro
     env:
@@ -90,7 +90,7 @@
     networks:
       - name: "{{ docker_network_name }}"
     volumes:
-      - "{{ immich_upload_path }}/upload:/usr/src/app/upload"
+      - "{{ immich_upload_path }}:/usr/src/app/upload"
       - "{{ immich_external_path }}:/mnt/media:ro"
       - /etc/localtime:/etc/localtime:ro
     env:
