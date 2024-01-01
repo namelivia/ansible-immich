@@ -32,7 +32,7 @@
 - name: Create server container
   docker_container:
     name: "{{ application_name }}-server"
-    image: "ghcr.io/immich-app/immich-server:3.8"
+    image: "ghcr.io/immich-app/immich-server:v1.91.4"
     pull: true
     entrypoint:
       - "start.sh"
@@ -63,7 +63,7 @@
 - name: Create microservices container
   docker_container:
     name: "{{ application_name }}-microservices"
-    image: "ghcr.io/immich-app/immich-server:3.8"
+    image: "ghcr.io/immich-app/immich-server:v1.91.4"
     pull: true
     entrypoint:
       - "start.sh"
@@ -90,7 +90,7 @@
 - name: Create machine learning container
   docker_container:
     name: "{{ application_name }}-machine-learning"
-    image: "ghcr.io/immich-app/immich-machine-learning:3.8"
+    image: "ghcr.io/immich-app/immich-machine-learning:v1.91.4"
     pull: true
     cleanup: true
     log_driver: "loki"
